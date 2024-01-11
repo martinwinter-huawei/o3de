@@ -6,8 +6,9 @@
  *
  */
 
-#include <Atom/RHI/SingleDeviceResourceView.h>
 #include <Atom/RHI/SingleDeviceResource.h>
+#include <Atom/RHI/SingleDeviceResourceView.h>
+#include <iostream>
 namespace AZ::RHI
 {
     ResultCode SingleDeviceResourceView::Init(const SingleDeviceResource& resource)
@@ -46,8 +47,14 @@ namespace AZ::RHI
         return *m_resource;
     }
 
-    bool SingleDeviceResourceView::IsStale() const
+    bool SingleDeviceResourceView::IsStale(bool framebuffer) const
     {
+        if (framebuffer && m_resource && m_resource->GetVersion() != m_version)
+        {
+            std::cerr << "This resource is stale  resVer: " << m_resource->GetVersion() << " | viewVer: " << m_version
+                      << " | Resource: " << m_resource.get() << " | ResourceView: " << this << std::endl;
+            AZ_Printf("SingleDeviceResource", "hello");
+        }
         return m_resource && m_resource->GetVersion() != m_version;
     }
 
@@ -57,7 +64,13 @@ namespace AZ::RHI
         ResultCode resultCode = InvalidateInternal();
         if (resultCode == ResultCode::Success)
         {
+            std::cerr << "SingleDeviceResourceView::OnResourceInvalidate " << m_resource->GetVersion() << " | " << m_version
+                      << " | Resource: " << m_resource.get() << " | ResourceView: " << this << std::endl;
             m_version = m_resource->GetVersion();
+        }
+        else
+        {
+            std::cerr << "SingleDeviceResourceView::OnResourceInvalidate not successful" << std::endl;
         }
         return resultCode;
     }

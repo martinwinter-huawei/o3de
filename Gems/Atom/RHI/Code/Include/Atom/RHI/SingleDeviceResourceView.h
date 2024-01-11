@@ -35,7 +35,7 @@ namespace AZ::RHI
 
         //! Returns whether this view is stale (i.e. the original image contents have
         //! been shutdown.
-        bool IsStale() const;
+        bool IsStale(bool framebuffer = false) const;
 
         //! Returns whether the view covers the entire image (i.e. isn't just a subset).
         virtual bool IsFullView() const = 0;

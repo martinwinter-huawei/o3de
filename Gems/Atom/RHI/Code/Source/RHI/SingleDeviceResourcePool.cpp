@@ -10,6 +10,8 @@
 #include <Atom/RHI/SingleDeviceResource.h>
 #include <Atom/RHI/MemoryStatisticsBuilder.h>
 
+#include <iostream>
+
 //#define ASSERT_UNNAMED_RESOURCE_POOLS
 
 namespace AZ::RHI
@@ -100,6 +102,7 @@ namespace AZ::RHI
 
     void SingleDeviceResourcePool::Register(SingleDeviceResource& resource)
     {
+        std::cerr << "SingleDeviceResourcePool::Register for Resource: " << &resource << std::endl;
         resource.SetPool(this);
 
         AZStd::unique_lock<AZStd::shared_mutex> lock(m_registryMutex);
@@ -108,6 +111,7 @@ namespace AZ::RHI
 
     void SingleDeviceResourcePool::Unregister(SingleDeviceResource& resource)
     {
+        std::cerr << "SingleDeviceResourcePool::Unregister for Resource: " << &resource << std::endl;
         resource.SetPool(nullptr);
 
         AZStd::unique_lock<AZStd::shared_mutex> lock(m_registryMutex);
@@ -159,6 +163,7 @@ namespace AZ::RHI
             MemoryStatisticsEventBus::Handler::BusDisconnect();
             for (SingleDeviceResource* resource : m_registry)
             {
+                std::cerr << "SingleDeviceResourcePool::Shutdown for Resource: " << &resource << std::endl;
                 resource->SetPool(nullptr);
                 ShutdownResourceInternal(*resource);
                 resource->Shutdown();
@@ -197,6 +202,7 @@ namespace AZ::RHI
         // [GFX_TODO][bethelz][LY-83244]: Frame processing validation disabled. See Jira.
         if (ValidateIsInitialized() && ValidateIsRegistered(resource) /* && ValidateNotProcessingFrame() */)
         {
+            std::cerr << "SingleDeviceResourcePool::ShutdownResource for Resource: " << resource << std::endl;
             Unregister(*resource);
             ShutdownResourceInternal(*resource);
         }

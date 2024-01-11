@@ -13,6 +13,8 @@
 #include <RHI/RenderPass.h>
 #include <Atom/RHI.Reflect/VkAllocator.h>
 
+#include <iostream>
+
 namespace AZ
 {
     namespace Vulkan
@@ -52,7 +54,12 @@ namespace AZ
             for (size_t index = 0; index < descriptor.m_attachmentImageViews.size(); ++index)
             {
                 const ImageView* imageView = descriptor.m_attachmentImageViews[index];
-                attachmentIsStale |= imageView->IsStale();
+                attachmentIsStale |= imageView->IsStale(true);
+                if (attachmentIsStale)
+                {
+                    AZ_Printf("wow", "wow");
+                    std::cerr << "AttachmentIsStale so imageview->GetImage is: " << &imageView->GetImage() << std::endl;
+                }
                 RHI::ResourceInvalidateBus::MultiHandler::BusConnect(&imageView->GetImage());
                 m_attachments[index] = imageView;
             }
@@ -66,6 +73,12 @@ namespace AZ
                 result = BuildNativeFramebuffer();
                 RETURN_RESULT_IF_UNSUCCESSFUL(result);
             }
+            else
+            {
+                std::cerr << "AttachmentIsStale is true" << std::endl;
+                AZ_Printf("Test", "test");
+            }
+            std::cerr << "FrameBuffer::Init called" << std::endl;
 
             SetName(GetName());
             return result;
@@ -108,6 +121,10 @@ namespace AZ
         {
             if (IsInitialized() && !name.empty())
             {
+                if (reinterpret_cast<uint64_t>(m_nativeFramebuffer) == 0)
+                {
+                    std::cerr << "Hello there" << std::endl;
+                }
                 Debug::SetNameToObject(reinterpret_cast<uint64_t>(m_nativeFramebuffer), name.data(), VK_OBJECT_TYPE_FRAMEBUFFER, static_cast<Device&>(GetDevice()));
             }
         }
@@ -119,12 +136,14 @@ namespace AZ
                 const RHI::SingleDeviceImage& image = imageView->GetImage();
                 RHI::ResourceInvalidateBus::MultiHandler::BusDisconnect(&image);
             }
+            std::cerr << "FrameBuffer::Shutdown called" << std::endl;
             Invalidate();
             Base::Shutdown();
         }
 
         RHI::ResultCode Framebuffer::OnResourceInvalidate()
         {
+            std::cout << "FrameBuffer::OnResourceInvalidate() called" << std::endl;
             Invalidate();
             if (!AreResourcesReady())
             {
@@ -167,6 +186,15 @@ namespace AZ
             const VkResult result = device.GetContext().CreateFramebuffer(
                 device.GetNativeDevice(), &createInfo, VkSystemAllocator::Get(), &m_nativeFramebuffer);
 
+            if (reinterpret_cast<uint64_t>(m_nativeFramebuffer) == 0)
+            {
+                std::cerr << "FrameBuffer::BuildNativeFramebuffer called and is 0" << std::endl;
+            }
+            else
+            {
+                std::cerr << "FrameBuffer::BuildNativeFramebuffer called" << std::endl;
+            }
+
             return ConvertResult(result);
         }
 
@@ -190,6 +218,7 @@ namespace AZ
                 auto& device = static_cast<Device&>(GetDevice());
                 device.GetContext().DestroyFramebuffer(device.GetNativeDevice(), m_nativeFramebuffer, VkSystemAllocator::Get());
                 m_nativeFramebuffer = VK_NULL_HANDLE;
+                std::cerr << "FrameBuffer::Invalidate() called" << std::endl;
             }
         }
     }

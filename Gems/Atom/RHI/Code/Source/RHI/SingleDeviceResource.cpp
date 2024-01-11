@@ -19,6 +19,7 @@
 #include <AzCore/std/hash.h>
 #include <AzCore/std/containers/unordered_map.h>
 
+#include <iostream>
 
 namespace AZ::RHI
 {
@@ -41,7 +42,9 @@ namespace AZ::RHI
         {
             m_isInvalidationQueued = true;
             ResourceInvalidateBus::QueueEvent(this, &ResourceInvalidateBus::Events::OnResourceInvalidate);
-                
+            std::cerr << "SingleDeviceResource::InvalidateViews called Resource: " << this << " and increased version to: " << m_version
+                      << std::endl;
+
             // The resource could be destroyed before the QueueFunction runs, so do a refcount increment/decrement for safety
             add_ref();
             ResourceInvalidateBus::QueueFunction([this]()
@@ -50,6 +53,12 @@ namespace AZ::RHI
                     release();
                 });
             m_version++;
+            std::cerr << "SingleDeviceResource::InvalidateViews Resource: " << this << " and increased version finally to: " << m_version
+                      << std::endl;
+        }
+        else
+        {
+            std::cerr << "SingleDeviceResource::InvalidateViews is not called" << std::endl;
         }
     }
 
@@ -67,6 +76,9 @@ namespace AZ::RHI
     {
         m_pool = bufferPool;
 
+        std::cerr << "SingleDeviceResource::SetPool called with " << bufferPool << " for Resource: " << this
+                  << " and current version: " << m_version << std::endl;
+
         const bool isValidPool = bufferPool != nullptr;
         if (isValidPool)
         {
@@ -74,10 +86,11 @@ namespace AZ::RHI
             // can't have any if this is the first initialization.
             if (!IsFirstVersion())
             {
+                // std::cerr << "About to call SingleDeviceResource::InvalidateViews()" << std::endl;
                 InvalidateViews();
             }
         }
-
+        std::cerr << "Resource: " << this << " increases version: " << m_version << std::endl;
         ++m_version;
     }
 
