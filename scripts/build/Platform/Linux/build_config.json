@@ -186,7 +186,7 @@
     "PARAMETERS": {
       "CONFIGURATION": "profile",
       "OUTPUT_DIRECTORY": "build/linux",
-      "CMAKE_OPTIONS": "-G 'Ninja Multi-Config' -DLY_UNITY_BUILD=FALSE -DLY_PARALLEL_LINK_JOBS=4",
+      "CMAKE_OPTIONS": "-G 'Ninja Multi-Config' -DLY_UNITY_BUILD=TRUE -DLY_PARALLEL_LINK_JOBS=16 -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=mold -DCMAKE_SHARED_LINKER_FLAGS=-fuse-ld=mold -DLY_PARALLEL_COMPILE_JOBS=32 -DLY_3RDPARTY_PATH=/fast/o3de/packages",
       "CMAKE_LY_PROJECTS": "AutomatedTesting",
       "CMAKE_TARGET": "all",
       "CTEST_OPTIONS": "-L (SUITE_smoke|SUITE_main) -LE (REQUIRES_gpu) --no-tests=error -T Test",

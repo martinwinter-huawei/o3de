@@ -54,7 +54,7 @@ elseif (${DEBUG_SYMBOL_OPTION} STREQUAL "DETACH")
 
 endif()
 
-
+if(False)
 # Step 1: Extract the debug information into the debug datafile (For 'DETACH' actions)
 if (${DEBUG_SYMBOL_OPTION} STREQUAL "DETACH")
 
@@ -76,4 +76,5 @@ if (${DEBUG_SYMBOL_OPTION} STREQUAL "DETACH")
                     WORKING_DIRECTORY 
                         ${file_path}
     )
+endif()
 endif()
