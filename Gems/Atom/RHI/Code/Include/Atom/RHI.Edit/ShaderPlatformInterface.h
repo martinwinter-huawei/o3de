@@ -40,6 +40,8 @@ namespace AZ::RHI
         Invalid = static_cast<uint32_t>(-1),
         Vertex = 0,
         Geometry,
+        TessellationControl,
+        TessellationEvaluation,
         Fragment,
         Compute,
         RayTracing,
