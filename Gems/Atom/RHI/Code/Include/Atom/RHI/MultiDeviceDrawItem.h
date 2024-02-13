@@ -91,7 +91,9 @@ namespace AZ::RHI
         MultiDeviceDrawItem(MultiDevice::DeviceMask deviceMask, AZStd::unordered_map<int, SingleDeviceDrawItem*>&& deviceDrawItemPtrs);
 
         MultiDeviceDrawItem(const MultiDeviceDrawItem& other) = delete;
-        MultiDeviceDrawItem(MultiDeviceDrawItem&& other) = default;
+        MultiDeviceDrawItem(MultiDeviceDrawItem&& other) noexcept = default;
+        MultiDeviceDrawItem& operator=(const MultiDeviceDrawItem& other) = delete;
+        MultiDeviceDrawItem& operator=(MultiDeviceDrawItem&& other) noexcept = default;
 
         //! Returns the device-specific SingleDeviceDrawItem for the given index
         const SingleDeviceDrawItem& GetDeviceDrawItem(int deviceIndex) const
@@ -250,7 +252,7 @@ namespace AZ::RHI
             }
         }
 
-    private:
+    // private:
         bool m_enabled{ true };
         MultiDevice::DeviceMask m_deviceMask{ MultiDevice::DefaultDevice };
         //! A map of all device-specific DrawItems, indexed by the device index

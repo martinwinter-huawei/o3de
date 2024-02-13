@@ -20,6 +20,8 @@
 #include <Atom/RPI.Reflect/Asset/AssetUtils.h>
 #include <Atom/RPI.Reflect/Pass/RasterPassData.h>
 
+#include <iostream>
+
 namespace AZ
 {
     namespace RPI
@@ -221,7 +223,7 @@ namespace AZ
             RHI::MultiDeviceDrawItemProperties* currentBuffer = m_combinedDrawList.data();
             for (auto drawList : drawLists)
             {
-                memcpy(currentBuffer, drawList.data(), drawList.size()*sizeof(RHI::SingleDeviceDrawItemProperties));
+                memcpy(currentBuffer, drawList.data(), drawList.size()*sizeof(RHI::MultiDeviceDrawItemProperties));
                 currentBuffer += drawList.size();
             }
             SortDrawList(m_combinedDrawList);
@@ -265,9 +267,28 @@ namespace AZ
             for (uint32_t index = startIndex; index < clampedEndIndex; ++index)
             {
                 const RHI::MultiDeviceDrawItemProperties& drawItemProperties = m_drawListView[index];
+                std::cerr << "MultiDeviceDrawItem: " << drawItemProperties.m_mdItem << std::endl;
                 if (drawItemProperties.m_drawFilterMask & m_pipeline->GetDrawFilterMask())
                 {
-                    commandList->Submit(drawItemProperties.m_mdItem->GetDeviceDrawItem(RHI::MultiDevice::DefaultDeviceIndex), index + indexOffset);
+                    const auto& deviceDrawItem{ drawItemProperties.m_mdItem->GetDeviceDrawItem(RHI::MultiDevice::DefaultDeviceIndex) };
+                    // for (auto i = 0; i < deviceDrawItem.m_streamBufferViewCount; ++i)
+                    // {
+                    //     auto& streamBufferView{ deviceDrawItem.m_streamBufferViews[i] };
+                    //     std::cerr << "Device DrawItem has buffer " << streamBufferView.GetBuffer() << " has bytecount "
+                    //               << streamBufferView.GetBuffer()->GetDescriptor().m_byteCount << std::endl;
+                    // }
+                    // if (drawItemProperties.m_mdItem->m_deviceStreamBufferViews.contains(RHI::MultiDevice::DefaultDeviceIndex))
+                    // {
+                    //     const auto& mdStreamBufferViews{ drawItemProperties.m_mdItem->m_deviceStreamBufferViews.at(
+                    //         RHI::MultiDevice::DefaultDeviceIndex) };
+                    //     for (auto& sdStreamBufferView : mdStreamBufferViews)
+                    //     {
+                    //         std::cerr << "MultiDevice DrawItem has buffer " << sdStreamBufferView.GetBuffer() << " has bytecount "
+                    //                   << sdStreamBufferView.GetBuffer()->GetDescriptor().m_byteCount << std::endl;
+                    //     }
+                    // }
+
+                    commandList->Submit(deviceDrawItem, index + indexOffset);
                 }
             }
         }

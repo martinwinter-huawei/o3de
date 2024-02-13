@@ -14,6 +14,8 @@
 #include <AzCore/Memory/Memory.h>
 #include <AzCore/Memory/SystemAllocator.h>
 
+#include <iostream>
+
 namespace AZ::RHI
 {
     SingleDeviceDrawPacketBuilder::SingleDeviceDrawRequest MultiDeviceDrawPacketBuilder::MultiDeviceDrawRequest::BuildDeviceDrawRequest(int deviceIndex)
@@ -133,6 +135,7 @@ namespace AZ::RHI
 
     RHI::Ptr<MultiDeviceDrawPacket> MultiDeviceDrawPacketBuilder::End()
     {
+        std::cerr << "MultiDeviceDrawPacketBuilder::End()" << std::endl;
         if (m_drawRequests.empty())
         {
             return nullptr;
@@ -149,12 +152,22 @@ namespace AZ::RHI
         m_drawPacketInFlight->m_drawItems.reserve(m_drawRequests.size());
 
         // Setup single-device DrawItems
-        for (auto i{ 0 }; i < m_drawRequests.size(); ++i)
+        for (auto drawItemIndex{ 0 }; drawItemIndex < m_drawRequests.size(); ++drawItemIndex)
         {
             AZStd::unordered_map<int, SingleDeviceDrawItem*> deviceDrawItemPtrs;
             for (auto& [deviceIndex, deviceDrawPacketBuilder] : m_deviceDrawPacketBuilders)
             {
-                deviceDrawItemPtrs.emplace(deviceIndex, m_drawPacketInFlight->m_deviceDrawPackets[deviceIndex]->GetDrawItem(0));
+                auto deviceDrawItem{ m_drawPacketInFlight->m_deviceDrawPackets[deviceIndex]->GetDrawItem(drawItemIndex) };
+                for (auto i = 0; i < deviceDrawItem->m_streamBufferViewCount; ++i)
+                {
+                    auto& streamBufferView{ deviceDrawItem->m_streamBufferViews[i] };
+                    if (streamBufferView.GetBuffer()->GetDescriptor().m_byteCount == 0)
+                    {
+                        std::cerr << "Device DrawItem " << deviceDrawItem << " has buffer " << streamBufferView.GetBuffer()
+                                  << " has bytecount " << streamBufferView.GetBuffer()->GetDescriptor().m_byteCount << std::endl;
+                    }
+                }
+                deviceDrawItemPtrs.emplace(deviceIndex, deviceDrawItem);
             }
             m_drawPacketInFlight->m_drawItems.emplace_back(MultiDeviceDrawItem{ m_deviceMask, AZStd::move(deviceDrawItemPtrs) });
         }
@@ -179,6 +192,11 @@ namespace AZ::RHI
         }
 
         m_drawRequests.clear();
+
+        for (auto& drawItem : m_drawPacketInFlight->m_drawItems)
+        {
+            std::cerr << "MDItem is: " << &drawItem << std::endl;
+        }
 
         return AZStd::move(m_drawPacketInFlight);
     }
@@ -207,12 +225,12 @@ namespace AZ::RHI
         }
 
         // Setup single-device DrawItems
-        for (auto i{ 0 }; i < drawRequestCount; ++i)
+        for (auto drawItemIndex{ 0 }; drawItemIndex < drawRequestCount; ++drawItemIndex)
         {
             AZStd::unordered_map<int, SingleDeviceDrawItem*> deviceDrawItemPtrs;
             for (auto& [deviceIndex, deviceDrawPacketBuilder] : m_deviceDrawPacketBuilders)
             {
-                deviceDrawItemPtrs.emplace(deviceIndex, m_drawPacketInFlight->m_deviceDrawPackets[deviceIndex]->GetDrawItem(i));
+                deviceDrawItemPtrs.emplace(deviceIndex, m_drawPacketInFlight->m_deviceDrawPackets[deviceIndex]->GetDrawItem(drawItemIndex));
             }
             m_drawPacketInFlight->m_drawItems.emplace_back(MultiDeviceDrawItem{ m_deviceMask, AZStd::move(deviceDrawItemPtrs) });
         }

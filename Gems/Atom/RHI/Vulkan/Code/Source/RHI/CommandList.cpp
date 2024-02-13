@@ -36,6 +36,8 @@
 #include <Atom/RHI.Reflect/IndirectBufferLayout.h>
 #include <Atom/RHI/SingleDeviceDispatchRaysItem.h>
 
+#include <iostream>
+
 namespace AZ
 {
     namespace Vulkan
@@ -850,6 +852,10 @@ namespace AZ
                     if (bufferView.GetBuffer())
                     {
                         const auto* bufferMemoryView = static_cast<const Buffer*>(bufferView.GetBuffer())->GetBufferMemoryView();
+                        if (!bufferMemoryView->GetAllocation())
+                        {
+                            std::cerr << "Buffer: " << bufferView.GetBuffer() << " is not valid" << std::endl;
+                        }
                         nativeBuffers[i] = bufferMemoryView->GetNativeBuffer();
                         offsets[i] = bufferMemoryView->GetOffset() + bufferView.GetByteOffset();
                     }

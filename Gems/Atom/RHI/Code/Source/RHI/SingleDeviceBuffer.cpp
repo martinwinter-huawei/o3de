@@ -9,10 +9,16 @@
 #include <Atom/RHI/BufferFrameAttachment.h>
 #include <Atom/RHI/MemoryStatisticsBuilder.h>
 
+#include <iostream>
+
 namespace AZ::RHI
 {
     void SingleDeviceBuffer::SetDescriptor(const BufferDescriptor& descriptor)
     {
+        if (descriptor.m_byteCount == 0)
+        {
+            std::cerr << this << " got an invalid descriptor" << std::endl;
+        }
         m_descriptor = descriptor;
     }
 

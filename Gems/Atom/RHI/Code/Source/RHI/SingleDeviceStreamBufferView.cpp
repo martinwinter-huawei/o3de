@@ -9,6 +9,8 @@
 #include <Atom/RHI/SingleDeviceStreamBufferView.h>
 #include <Atom/RHI.Reflect/InputStreamLayout.h>
 
+#include <iostream>
+
 namespace AZ::RHI
 {
     SingleDeviceStreamBufferView::SingleDeviceStreamBufferView(
@@ -27,6 +29,11 @@ namespace AZ::RHI
         AZStd::hash_combine(seed, m_byteCount);
         AZStd::hash_combine(seed, m_byteStride);
         m_hash = static_cast<HashValue64>(seed);
+
+        if (buffer.GetDescriptor().m_byteCount == 0)
+        {
+            std::cerr << &buffer << " has no valid byteCount" << std::endl;
+        }
     }
 
     HashValue64 SingleDeviceStreamBufferView::GetHash() const

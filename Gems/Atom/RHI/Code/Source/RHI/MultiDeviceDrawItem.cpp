@@ -10,6 +10,8 @@
 
 #include <Atom/RHI/RHISystemInterface.h>
 
+#include <iostream>
+
 namespace AZ::RHI
 {
     MultiDeviceDrawItem::MultiDeviceDrawItem(MultiDevice::DeviceMask deviceMask)
@@ -29,11 +31,14 @@ namespace AZ::RHI
         {
             m_deviceDrawItemPtrs.emplace(deviceIndex, &drawItem);
         }
+
+        std::cerr << this << " called the default constructor" << std::endl;
     }
 
     MultiDeviceDrawItem::MultiDeviceDrawItem(MultiDevice::DeviceMask deviceMask, AZStd::unordered_map<int, SingleDeviceDrawItem*>&& deviceDrawItemPtrs)
         : m_deviceMask{ deviceMask }
         , m_deviceDrawItemPtrs{ deviceDrawItemPtrs }
     {
+        std::cerr << this << " called the constructor with a full map" << std::endl;
     }
 } // namespace AZ::RHI

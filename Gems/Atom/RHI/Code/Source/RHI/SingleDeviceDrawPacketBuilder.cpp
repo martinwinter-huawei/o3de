@@ -15,6 +15,8 @@
 #include <AzCore/Memory/Memory.h>
 #include <AzCore/Memory/SystemAllocator.h>
 
+#include <iostream>
+
 namespace AZ::RHI
 {
     void SingleDeviceDrawPacketBuilder::Begin(IAllocator* allocator)
@@ -278,6 +280,11 @@ namespace AZ::RHI
                     for (const SingleDeviceStreamBufferView& streamBufferView : drawRequest.m_streamBufferViews)
                     {
                         *streamBufferViews++ = streamBufferView;
+                        if (streamBufferView.GetBuffer()->GetDescriptor().m_byteCount == 0)
+                        {
+                            std::cerr << "StreamBufferView: " << &streamBufferView
+                                      << "has byteCount:" << streamBufferView.GetBuffer()->GetDescriptor().m_byteCount << std::endl;
+                        }
                     }
                 }
             }

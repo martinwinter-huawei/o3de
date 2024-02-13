@@ -19,6 +19,8 @@
 #include <RHI/Queue.h>
 #include <RHI/ReleaseContainer.h>
 
+#include <iostream>
+
 namespace AZ
 {
     namespace Vulkan
@@ -37,6 +39,7 @@ namespace AZ
         {
             AZ_Assert(!m_memoryView.IsValid(), "Memory has not been deallocated");
             m_memoryView = BufferMemoryView();
+            // std::cerr << this << " is invalidated" << std::endl;
             m_ownerQueue.Reset();
         }
 
@@ -55,6 +58,15 @@ namespace AZ
             DeviceObject::Init(device);
             m_ownerQueue.Init(bufferDescriptor);
             m_memoryView = memoryView;
+
+            // if (!memoryView.GetAllocation())
+            // {
+            //     std::cerr << this << " has no valid allocation" << std::endl;
+            // }
+            // else
+            // {
+            //     std::cerr << this << " has been initialized" << std::endl;
+            // }
 
             SetName(GetName());
             return RHI::ResultCode::Success;

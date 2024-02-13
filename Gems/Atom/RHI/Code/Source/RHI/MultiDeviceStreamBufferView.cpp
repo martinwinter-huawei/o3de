@@ -10,6 +10,8 @@
 #include <Atom/RHI/MultiDeviceBuffer.h>
 #include <Atom/RHI/MultiDeviceStreamBufferView.h>
 
+#include <iostream>
+
 namespace AZ::RHI
 {
     MultiDeviceStreamBufferView::MultiDeviceStreamBufferView(
@@ -25,6 +27,12 @@ namespace AZ::RHI
         AZStd::hash_combine(seed, m_byteCount);
         AZStd::hash_combine(seed, m_byteStride);
         m_hash = static_cast<HashValue64>(seed);
+
+        auto deviceBuffer{ buffer.GetDeviceBuffer(RHI::MultiDevice::DefaultDeviceIndex) };
+        if (deviceBuffer->GetDescriptor().m_byteCount == 0)
+        {
+            std::cerr << deviceBuffer.get() << " has no valid byteCount" << std::endl;
+        }
     }
 
     HashValue64 MultiDeviceStreamBufferView::GetHash() const
