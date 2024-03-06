@@ -48,7 +48,7 @@ namespace AZ
             uint32_t GetSize();
 
             //! Get the buffer's address. User can write data to the address.
-            AZStd::unordered_map<int, void*> GetBufferAddress();
+            const AZStd::unordered_map<int, void*>& GetBufferAddress();
 
             //! Get IndexBufferView if this buffer is used as index buffer
             RHI::MultiDeviceIndexBufferView GetIndexBufferView(RHI::IndexFormat format);
@@ -62,7 +62,7 @@ namespace AZ
             DynamicBuffer() = default;
 
             // initialize function called by DynamicBufferAllocator which to initialize this buffer
-            void Initialize(AZStd::unordered_map<int, void*> address, uint32_t size);
+            void Initialize(const AZStd::unordered_map<int, void*>& address, uint32_t size);
 
             AZStd::unordered_map<int, void*> m_address;
             uint32_t m_size;
