@@ -81,7 +81,8 @@ namespace AZ
         void RPISystem::Initialize(const RPISystemDescriptor& rpiSystemDescriptor)
         {
             // Init RHI device(s)
-            m_rhiSystem.InitDevices(AzFramework::StringFunc::Equal(RHI::GetCommandLineValue("enableMultipleDevices").c_str(), "enable") ? RHI::InitDevicesFlags::MultiDevice : RHI::InitDevicesFlags::SingleDevice);
+            auto commandLineDeviceCountValue{ RHI::GetCommandLineValue("devicecount") };
+            m_rhiSystem.InitDevices((commandLineDeviceCountValue != "") ? AZStd::stoi(commandLineDeviceCountValue) : 1);
 
             // Gather asset handlers from sub-systems.
             ImageSystem::GetAssetHandlers(m_assetHandlers);
