@@ -134,9 +134,12 @@ namespace AZ::RHI
         {
             AZ_Printf("RHISystem", "\tUsing multiple devices\n");
 
-            for(auto i {0}; (i < deviceCount) && (i < static_cast<int>(AZStd::size(physicalDevices))); ++i)
+            for (auto i{ 0 }; (usePhysicalDevices.size() < deviceCount) && (i < static_cast<int>(AZStd::size(physicalDevices))); ++i)
             {
-                usePhysicalDevices.emplace_back(physicalDevices[i]);
+                if (physicalDevices[i]->GetDescriptor().m_vendorId == VendorId::nVidia)
+                {
+                    usePhysicalDevices.emplace_back(physicalDevices[i]);
+                }
             }
         }
         else

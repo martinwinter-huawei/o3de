@@ -827,6 +827,18 @@ namespace AZ
             return m_queryEntries[AZStd::to_underlying(CopyIndex::SameDevice)].m_timestampResult;
         }
 
+        TimestampResult CopyPass::GetTimestampResultsInternal(int deviceIndex) const
+        {
+            return m_queryEntries[AZStd::to_underlying(
+                                      (deviceIndex == m_data.m_destinationDeviceIndex) ? CopyIndex::HostToDevice : CopyIndex::DeviceToHost)]
+                .m_timestampResult;
+        }
+
+        AZStd::pair<int, int> CopyPass::GetDeviceIndices() const
+        {
+            return { m_data.m_sourceDeviceIndex, m_data.m_destinationDeviceIndex };
+        }
+
         PipelineStatisticsResult CopyPass::GetPipelineStatisticsResultInternal() const
         {
             return m_queryEntries[AZStd::to_underlying(CopyIndex::SameDevice)].m_statisticsResult;

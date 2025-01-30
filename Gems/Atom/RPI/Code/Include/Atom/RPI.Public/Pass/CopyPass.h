@@ -18,6 +18,12 @@
 #include <Atom/RPI.Public/Configuration.h>
 #include <Atom/RPI.Public/Pass/Pass.h>
 
+namespace Render
+{
+    class ImGuiGpuProfiler;
+    struct PassEntry;
+} // namespace Render
+
 namespace AZ
 {
     namespace RPI
@@ -28,6 +34,8 @@ namespace AZ
         class ATOM_RPI_PUBLIC_API CopyPass : public Pass
         {
             AZ_RPI_PASS(CopyPass);
+            friend class Render::ImGuiGpuProfiler;
+            friend struct Render::PassEntry;
 
             using ScopeQuery = AZStd::array<RHI::Ptr<Query>, static_cast<size_t>(ScopeQueryType::Count)>;
 
@@ -124,6 +132,9 @@ namespace AZ
             // RPI::Pass overrides...
             TimestampResult GetTimestampResultInternal() const override;
             PipelineStatisticsResult GetPipelineStatisticsResultInternal() const override;
+
+            TimestampResult GetTimestampResultsInternal(int deviceIndex) const;
+            AZStd::pair<int, int> GetDeviceIndices() const;
 
             // Helper function to get the query by the scope index and query type
             RHI::Ptr<Query> GetQuery(ScopeQueryType queryType, CopyIndex copyIndex);

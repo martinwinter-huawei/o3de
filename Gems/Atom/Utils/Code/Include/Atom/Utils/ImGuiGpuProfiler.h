@@ -35,7 +35,7 @@ namespace AZ
             using PipelineStatisticsArray = AZStd::array<uint64_t, PipelineStatisticsAttributeCount>;
 
             PassEntry() = default;
-            PassEntry(const class AZ::RPI::Pass* pass, PassEntry* parent);
+            PassEntry(const class AZ::RPI::Pass* pass, PassEntry* parent, int deviceIndex);
 
             ~PassEntry() = default;
 
