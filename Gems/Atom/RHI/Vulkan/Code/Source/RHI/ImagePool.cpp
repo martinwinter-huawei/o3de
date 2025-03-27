@@ -89,6 +89,8 @@ namespace AZ
             heapMemoryUsage.m_totalResidentInBytes -= image.m_memoryRequirements.size;
 
             device.QueueForRelease(image.m_memoryView.GetAllocation());
+            if (GetDevice().GetDeviceIndex() == 0)
+                AZ_Printf("ImagePool", "%s", image.GetName().GetCStr());
             image.m_memoryView = MemoryView();
             image.Invalidate();
         }

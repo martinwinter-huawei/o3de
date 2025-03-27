@@ -156,6 +156,8 @@ namespace AZ
                 commandList.Submit(RHI::DeviceCopyItem(copyDescriptor));
                 
                 device.QueueForRelease(packet.m_stagingBuffer);
+                if (GetDevice().GetDeviceIndex() == 0)
+                    AZ_Printf("ImagePoolResolver", "%s", packet.m_stagingBuffer->GetName().GetCStr());
             }
         }
 

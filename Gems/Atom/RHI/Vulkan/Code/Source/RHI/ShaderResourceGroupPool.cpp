@@ -99,6 +99,8 @@ namespace AZ
             m_currentIteration = 0;
             device.QueueForRelease(m_descriptorSetLayout);
             device.QueueForRelease(m_descriptorSetAllocator);
+            if (GetDevice().GetDeviceIndex() == 0)
+                AZ_Printf("ShaderResourceGroupPool", "%s", GetName().GetCStr());
             Base::ShutdownInternal();
         }
 

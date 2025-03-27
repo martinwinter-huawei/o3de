@@ -28,6 +28,15 @@
 
 namespace AZ::RHI
 {
+    struct TimingHelper
+    {
+        TimingHelper(AZStd::string&& name, float threshold = 1.f);
+        ~TimingHelper();
+
+        decltype(std::chrono::high_resolution_clock::now()) t0, t1;
+        float m_threshold{ 1.f };
+        AZStd::string m_name;
+    };
     //! The Device is a context for managing GPU state and memory on a physical device. The user creates
     //! a device instance from a PhysicalDevice. Each device has its own capabilities and limits, and can
     //! be configured to buffer a specific number of frames.

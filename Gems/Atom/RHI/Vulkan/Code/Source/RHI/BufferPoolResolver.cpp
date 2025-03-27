@@ -111,7 +111,9 @@ namespace AZ
                 copyDescriptor.m_size = static_cast<uint32_t>(packet.m_byteSize);
 
                 commandList.Submit(RHI::DeviceCopyItem(copyDescriptor));
-                device.QueueForRelease(stagingBuffer);                
+                device.QueueForRelease(stagingBuffer);
+                if (GetDevice().GetDeviceIndex() == 0)
+                    AZ_Printf("BufferPoolResolver", "%s", stagingBuffer->GetName().GetCStr());
             }
         }
 

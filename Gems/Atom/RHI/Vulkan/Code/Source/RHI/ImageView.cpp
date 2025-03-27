@@ -176,6 +176,8 @@ namespace AZ
                 auto& device = static_cast<Device&>(GetDevice());
                 device.QueueForRelease(
                     new ReleaseContainer<VkImageView>(device.GetNativeDevice(), m_vkImageView, device.GetContext().DestroyImageView));
+                if (GetDevice().GetDeviceIndex() == 0)
+                    AZ_Printf("ImageView", "%s", GetName().GetCStr());
                 m_vkImageView = VK_NULL_HANDLE;
             }
         }

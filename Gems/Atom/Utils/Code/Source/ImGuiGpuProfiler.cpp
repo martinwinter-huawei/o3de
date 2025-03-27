@@ -8,13 +8,14 @@
 
 #include <Atom/Utils/ImGuiGpuProfiler.h>
 
-#include <Atom/RHI/RHISystemInterface.h>
-#include <Atom/RHI/RHIMemoryStatisticsInterface.h>
 #include <Atom/RHI.Reflect/MemoryStatistics.h>
+#include <Atom/RHI/RHIMemoryStatisticsInterface.h>
+#include <Atom/RHI/RHISystemInterface.h>
+#include <Atom/RPI.Public/Pass/CopyPass.h>
 #include <Atom/RPI.Public/Pass/ParentPass.h>
 #include <Atom/RPI.Public/Pass/RenderPass.h>
-#include <Atom/RPI.Public/RenderPipeline.h>
 #include <Atom/RPI.Public/RPISystemInterface.h>
+#include <Atom/RPI.Public/RenderPipeline.h>
 #include <Atom/RPI.Public/Scene.h>
 
 #include <Profiler/ImGuiTreemap.h>
@@ -142,20 +143,27 @@ namespace AZ
 
         // --- PassEntry ---
 
-        PassEntry::PassEntry(const RPI::Pass* pass, PassEntry* parent)
+        PassEntry::PassEntry(const RPI::Pass* pass, PassEntry* parent, int deviceIndex)
         {
             m_name = pass->GetName();
-            m_path = pass->GetPathName();
+            m_path = AZ::Name(pass->GetPathName().GetCStr() + AZStd::to_string(deviceIndex));
             m_parent = parent;
             m_enabled = pass->IsEnabled();
-            m_deviceIndex = pass->GetDeviceIndex() == -1 ? RHI::MultiDevice::DefaultDeviceIndex : pass->GetDeviceIndex();
+            m_deviceIndex = deviceIndex;
             m_timestampEnabled = pass->IsTimestampQueryEnabled();
             m_pipelineStatisticsEnabled = pass->IsPipelineStatisticsQueryEnabled();
             m_isParent = pass->AsParent() != nullptr;
 
             // [GFX TODO][ATOM-4001] Cache the timestamp and PipelineStatistics results.
             // Get the query results from the passes.
-            m_timestampResult = pass->GetLatestTimestampResult();
+            if (auto copyPass{ AZ::RttiCast<const AZ::RPI::CopyPass*>(pass) }; copyPass)
+            {
+                m_timestampResult = copyPass->GetTimestampResultsInternal(deviceIndex);
+            }
+            else
+            {
+                m_timestampResult = pass->GetLatestTimestampResult();
+            }
 
             const RPI::PipelineStatisticsResult rps = pass->GetLatestPipelineStatisticsResult();
             m_pipelineStatistics = { rps.m_vertexCount, rps.m_primitiveCount, rps.m_vertexShaderInvocationCount,
@@ -805,7 +813,9 @@ namespace AZ
                         const AZStd::string headerFrameTime =
                             AZStd::string::format("Total frame duration (GPU %d): %s", deviceIndex, formattedTimestamp.c_str());
                         ImGui::Text("%s", headerFrameTime.c_str());
+                        AZ_Printf("Timing", "%s", headerFrameTime.c_str());
                     }
+                    AZ_Printf("--", "---------------------");
 
                     // Draw the viewing option.
                     ImGui::RadioButton("Hierarchical", reinterpret_cast<int32_t*>(&m_viewType), static_cast<int32_t>(ProfilerViewType::Hierarchical));
@@ -2227,15 +2237,52 @@ namespace AZ
                 }
                 else
                 {
-                    PassEntry entry(pass, parent);
+                    if (auto copyPass{ AZ::RttiCast<const AZ::RPI::CopyPass*>(pass) }; copyPass)
+                    {
+                        // SameDevice or DeviceToHost
+                        PassEntry entry(pass, parent, copyPass->GetDeviceIndices().first);
 
-                    // Set the time stamp in the database.
-                    [[maybe_unused]] const auto passEntry = passEntryDatabase.find(entry.m_path);
-                    AZ_Assert(passEntry == passEntryDatabase.end(), "There already is an entry with the name \"%s\".", entry.m_path.GetCStr());
+                        // Set the time stamp in the database.
+                        AZ_Assert(
+                            passEntryDatabase.find(entry.m_path) == passEntryDatabase.end(),
+                            "There already is an entry with the name \"%s\".",
+                            entry.m_path.GetCStr());
 
-                    // Set the entry in the map.
-                    PassEntry& entryRef = passEntryDatabase[entry.m_path] = entry;
-                    return &entryRef;
+                        // Set the entry in the map.
+                        passEntryDatabase[entry.m_path] = entry;
+
+                        if (copyPass->m_copyMode == RPI::CopyPass::CopyMode::DifferentDevicesIntermediateHost)
+                        {
+                            entry = PassEntry(pass, parent, copyPass->GetDeviceIndices().second);
+
+                            // Set the time stamp in the database.
+                            AZ_Assert(
+                                passEntryDatabase.find(entry.m_path) == passEntryDatabase.end(),
+                                "There already is an entry with the name \"%s\".",
+                                entry.m_path.GetCStr());
+
+                            // Set the entry in the map.
+                            passEntryDatabase[entry.m_path] = entry;
+                        }
+
+                        // Return either first or second, as neither is a parent pass it should not matter
+                        return &passEntryDatabase[entry.m_path];
+                    }
+                    else
+                    {
+                        PassEntry entry(
+                            pass, parent, pass->GetDeviceIndex() == -1 ? RHI::MultiDevice::DefaultDeviceIndex : pass->GetDeviceIndex());
+
+                        // Set the time stamp in the database.
+                        AZ_Assert(
+                            passEntryDatabase.find(entry.m_path) == passEntryDatabase.end(),
+                            "There already is an entry with the name \"%s\".",
+                            entry.m_path.GetCStr());
+
+                        // Set the entry in the map.
+                        PassEntry& entryRef = passEntryDatabase[entry.m_path] = entry;
+                        return &entryRef;
+                    }
                 }
             };
 
@@ -2266,7 +2313,7 @@ namespace AZ
             };
 
             // Set up the root entry.
-            PassEntry rootEntry(static_cast<RPI::Pass*>(rootPass.get()), nullptr);
+            PassEntry rootEntry(static_cast<RPI::Pass*>(rootPass.get()), nullptr, 0);
             PassEntry& rootEntryRef = passEntryDatabase[rootPass->GetPathName()] = rootEntry;
 
             // Create an intermediate structure from the passes.

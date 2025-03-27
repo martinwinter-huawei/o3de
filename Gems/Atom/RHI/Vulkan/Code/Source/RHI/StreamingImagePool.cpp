@@ -104,6 +104,9 @@ namespace AZ
                     device.QueueForRelease(alloc);
                 });
 
+            if (GetDevice().GetDeviceIndex() == 0)
+                AZ_Printf("StreamingImagePool", "%s", GetName().GetCStr());
+
             RHI::HeapMemoryLevel heapMemoryLevel = RHI::HeapMemoryLevel::Device;
             RHI::HeapMemoryUsage& heapMemoryUsage = m_memoryUsage.GetHeapMemoryUsage(heapMemoryLevel);
             heapMemoryUsage.m_usedResidentInBytes -= usedMem;

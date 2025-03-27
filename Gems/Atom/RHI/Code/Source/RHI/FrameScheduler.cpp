@@ -444,7 +444,9 @@ namespace AZ::RHI
 
     ResultCode FrameScheduler::BeginFrame()
     {
+        static int frameNumber{ 0 };
         AZ_PROFILE_SCOPE(RHI, "FrameScheduler: BeginFrame");
+        AZ_Printf("--------------------------------------------------- BeginFrame", "Frame %d", frameNumber++);
 
         if (!ValidateIsInitialized())
         {
@@ -503,7 +505,9 @@ namespace AZ::RHI
 
     ResultCode FrameScheduler::EndFrame()
     {
+        static int frameNumber{ 0 };
         AZ_PROFILE_SCOPE(RHI, "FrameScheduler: EndFrame");
+        AZ_Printf("--------------------------------------------------- EndFrame", "Frame %d", frameNumber++);
 
         if (Validation::IsEnabled())
         {
@@ -555,6 +559,11 @@ namespace AZ::RHI
             statsProfiler->PushSample(rhiMetricsId, frameTimeMetricId, static_cast<double>(timeNowTicks - m_lastFrameEndTime));
         }
         m_lastFrameEndTime = timeNowTicks;
+
+        if (frameNumber == 5)
+        {
+            exit(-1);
+        }
 
         return ResultCode::Success;
     }

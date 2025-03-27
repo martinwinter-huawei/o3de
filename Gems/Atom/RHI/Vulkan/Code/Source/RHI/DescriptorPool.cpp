@@ -62,6 +62,7 @@ namespace AZ
 
         void DescriptorPool::Shutdown()
         {
+            AZ::RHI::TimingHelper timing{ "DescriptorPool" };
             m_collector.Collect(true);
             if (m_nativeDescriptorPool != VK_NULL_HANDLE)
             {

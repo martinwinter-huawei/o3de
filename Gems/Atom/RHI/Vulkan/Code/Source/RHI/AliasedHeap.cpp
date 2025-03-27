@@ -60,6 +60,8 @@ namespace AZ
         {
             Device& device = GetVulkanRHIDevice();
             device.QueueForRelease(m_heapMemory);
+            if (GetDevice().GetDeviceIndex() == 0)
+                AZ_Printf("AliasedHeap", "%s", GetName().GetCStr());
             m_heapMemory = nullptr;
             Base::ShutdownInternal();
         }

@@ -517,11 +517,15 @@ namespace AZ
             for (const auto& fence : m_signalFences)
             {
                 static_cast<Device&>(fence->GetDevice()).QueueForRelease(fence);
+                if (GetDevice().GetDeviceIndex() == 0)
+                    AZ_Printf("Scope::DeactivateInternal()::Signal", "%s", fence->GetName().GetCStr());
             }
 
             for (const auto& fence : m_waitFences)
             {
                 static_cast<Device&>(fence->GetDevice()).QueueForRelease(fence);
+                if (GetDevice().GetDeviceIndex() == 0)
+                    AZ_Printf("Scope::DeactivateInternal()::Wait", "%s", fence->GetName().GetCStr());
             }
 
             m_waitSemaphores.clear();

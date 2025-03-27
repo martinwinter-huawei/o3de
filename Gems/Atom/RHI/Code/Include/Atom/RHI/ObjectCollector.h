@@ -199,6 +199,8 @@ namespace AZ::RHI
             else
             {
                 // garbage queue is empty, notify now
+                AZStd::string name{ AZStd::string("Notify1 ") + AZStd::to_string(m_pendingNotifies.size()) };
+                AZ::RHI::TimingHelper timing{ AZStd::move(name) };
                 for (auto& notifyFunction : m_pendingNotifies)
                 {
                     notifyFunction();
@@ -211,6 +213,16 @@ namespace AZ::RHI
 
         size_t objectCount = 0;
         size_t i = 0;
+        if (!m_pendingGarbage.empty())
+        {
+            AZStd::string garbageSize{ "Size:" };
+            for (const auto& garbage : m_pendingGarbage)
+            {
+                garbageSize += AZStd::string(" ") + AZStd::to_string(garbage.m_objects.size());
+            }
+            AZ_Printf("m_pendingGarbage[i] objects.size", "%s", garbageSize.c_str());
+        }
+
         while (i < m_pendingGarbage.size())
         {
             Garbage& garbage = m_pendingGarbage[i];
@@ -218,6 +230,8 @@ namespace AZ::RHI
             {
                 if (m_descriptor.m_collectFunction)
                 {
+                    auto name{ AZStd::string("Collect ") + AZStd::to_string(garbage.m_objects.size()) };
+                    AZ::RHI::TimingHelper timing{ AZStd::move(name) };
                     for (ObjectPtrType& object : garbage.m_objects)
                     {
                         m_descriptor.m_collectFunction(*object);
@@ -225,13 +239,30 @@ namespace AZ::RHI
                 }
                 objectCount += garbage.m_objects.size();
 
-                for (auto& notifyFunction : garbage.m_notifies)
                 {
-                    notifyFunction();
+                    auto name{ AZStd::string("Notify2 ") + AZStd::to_string(garbage.m_notifies.size()) };
+                    AZ::RHI::TimingHelper timing{ AZStd::move(name) };
+                    for (auto& notifyFunction : garbage.m_notifies)
+                    {
+                        notifyFunction();
+                    }
                 }
-
-                garbage = AZStd::move(m_pendingGarbage.back());
-                m_pendingGarbage.pop_back();
+                {
+                    AZ_PROFILE_SCOPE(RHI, "ObjectCollector: Move back");
+                    auto name{ AZStd::string("GarbageMoveBack ") + AZStd::to_string(garbage.m_objects.size()) };
+                    AZ_Printf(
+                        "",
+                        "%s - back.size() %llu - m_pendingGarbage.size() %llu - %d",
+                        name.c_str(),
+                        m_pendingGarbage.back().m_objects.size(),
+                        m_pendingGarbage.size(),
+                        i);
+                    AZ::RHI::TimingHelper timing{ AZStd::move(name) };
+                    garbage = AZStd::move(m_pendingGarbage.back());
+                }
+                {
+                    m_pendingGarbage.pop_back();
+                }
             }
             else
             {

@@ -50,7 +50,7 @@ namespace AZ::RHI
 #if defined(AZ_FORCE_CPU_GPU_INSYNC)
             constexpr uint32_t FrameCountMax = 1;
 #else
-            constexpr uint32_t FrameCountMax = 3;
+            constexpr uint32_t FrameCountMax = 8;
 #endif
 
             // Due to the fact that D3D12 only supports the flip model we need to allocate at least

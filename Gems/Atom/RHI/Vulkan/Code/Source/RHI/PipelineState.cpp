@@ -96,6 +96,8 @@ namespace AZ
             if (m_pipeline)
             {
                 device.QueueForRelease(m_pipeline);
+                if (GetDevice().GetDeviceIndex() == 0)
+                    AZ_Printf("PipelineState", "%s", GetName().GetCStr());
                 m_pipeline = nullptr;
             }
         }

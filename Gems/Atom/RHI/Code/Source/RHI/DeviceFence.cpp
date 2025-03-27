@@ -57,8 +57,10 @@ namespace AZ::RHI
     {
         if (IsInitialized())
         {
+            TimingHelper timing{ "DeviceFence" };
             if (m_waitThread.joinable())
             {
+                AZ_PROFILE_SCOPE(RHI, "DeviceFence: Shutdown join");
                 m_waitThread.join();
             }
 

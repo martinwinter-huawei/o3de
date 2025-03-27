@@ -15,6 +15,22 @@
 
 namespace AZ::RHI
 {
+    TimingHelper::TimingHelper(AZStd::string&& name, float threshold)
+        : m_name{ name }
+        , m_threshold{ 1 }
+        , t0{ std::chrono::high_resolution_clock::now() }
+    {
+    }
+
+    TimingHelper::~TimingHelper()
+    {
+        t1 = std::chrono::high_resolution_clock::now();
+        auto timingInMs{ std::chrono::duration_cast<std::chrono::nanoseconds>(t1 - t0).count() / 1000000.0f };
+        if (timingInMs > m_threshold)
+        {
+            AZ_Printf("Timing", "%s %f", m_name.c_str(), timingInMs);
+        }
+    }
     bool Device::IsInitialized() const
     {
         return m_physicalDevice != nullptr;
@@ -129,6 +145,7 @@ namespace AZ::RHI
 
         if (ValidateIsInitialized() && ValidateIsNotInFrame())
         {
+            AZ_Printf("--------------------------------------------------- BeginFrame", "ID %d", m_deviceIndex);
             m_isInFrame = true;
             return BeginFrameInternal();
         }
@@ -140,6 +157,7 @@ namespace AZ::RHI
         if (ValidateIsInitialized() && ValidateIsInFrame())
         {
             AZ_PROFILE_SCOPE(RHI, "Device: EndFrame");
+            AZ_Printf("--------------------------------------------------- EndFrame", "ID %d", m_deviceIndex);
             EndFrameInternal();
             m_isInFrame = false;
             return ResultCode::Success;

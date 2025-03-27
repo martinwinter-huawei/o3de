@@ -251,7 +251,8 @@ namespace AZ
 
             device.QueueForRelease(
                 new ReleaseContainer<VkPipeline>(device.GetNativeDevice(), m_pipeline, device.GetContext().DestroyPipeline));
-
+            if (GetDevice().GetDeviceIndex() == 0)
+                AZ_Printf("RayTracingPipelineState", "%s", GetName().GetCStr());
             for (auto& shaderModule : m_shaderModules)
             {
                 device.GetContext().DestroyShaderModule(device.GetNativeDevice(), shaderModule, VkSystemAllocator::Get());

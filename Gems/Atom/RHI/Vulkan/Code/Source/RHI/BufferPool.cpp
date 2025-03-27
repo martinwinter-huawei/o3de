@@ -100,6 +100,8 @@ namespace AZ
 
             // Deallocate the BufferMemory
             device.QueueForRelease(buffer.m_memoryView.GetAllocation());
+            if (GetDevice().GetDeviceIndex() == 0)
+                AZ_Printf("BufferPool::ShutdownResourceInternal", "%s", buffer.GetName().GetCStr());
             buffer.m_memoryView = BufferMemoryView();
             buffer.Invalidate();
         }
@@ -111,6 +113,8 @@ namespace AZ
 
             // Deallocate the BufferMemory
             device.QueueForRelease(buffer.m_memoryView.GetAllocation());
+            if (GetDevice().GetDeviceIndex() == 0)
+                AZ_Printf("BufferPool::OrphanBufferInternal", "%s", buffer.GetName().GetCStr());
             buffer.m_memoryView = BufferMemoryView();
             buffer.Invalidate();
 

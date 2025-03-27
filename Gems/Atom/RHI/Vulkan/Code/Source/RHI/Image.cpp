@@ -400,6 +400,8 @@ namespace AZ
                 auto& device = static_cast<Device&>(GetDevice());
                 device.QueueForRelease(
                     new ReleaseContainer<VkImage>(device.GetNativeDevice(), m_vkImage, device.GetContext().DestroyImage));
+                if (GetDevice().GetDeviceIndex() == 0)
+                    AZ_Printf("Image", "%s", GetName().GetCStr());
                 // ensure memory is released
                 AZ_Assert(!m_memoryView.IsValid(), "Memory should be released before Invalidate() is called");
             }

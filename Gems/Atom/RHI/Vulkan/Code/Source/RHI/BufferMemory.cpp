@@ -153,8 +153,10 @@ namespace AZ
 
         void BufferMemory::Shutdown()
         {
+            AZ::RHI::TimingHelper timing{ "BufferMemory" };
             if (m_vkBuffer != VK_NULL_HANDLE)
             {
+                AZ_PROFILE_SCOPE(RHI, "BufferMemory: Shutdown");
                 Device& device = static_cast<Device&>(GetDevice());
                 device.GetContext().DestroyBuffer(device.GetNativeDevice(), m_vkBuffer, VkSystemAllocator::Get());
                 m_vkBuffer = VK_NULL_HANDLE;

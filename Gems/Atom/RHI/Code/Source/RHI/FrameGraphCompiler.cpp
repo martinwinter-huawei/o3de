@@ -741,6 +741,7 @@ namespace AZ::RHI
 
                 case Action::DeactivateBuffer:
                     {
+                        AZ_PROFILE_SCOPE(RHI, "FrameGraphCompiler: CompileTransientAttachments DeactivateBuffer");
                         AZ_Assert(
                             !allocateResources || transientBuffers[attachmentIndex] || IsNullRHI(),
                             "DeviceBuffer is not active: %s",
@@ -753,6 +754,7 @@ namespace AZ::RHI
 
                 case Action::DeactivateImage:
                     {
+                        AZ_PROFILE_SCOPE(RHI, "FrameGraphCompiler: CompileTransientAttachments DeactivateImage");
                         AZ_Assert(
                             !allocateResources || transientImages[attachmentIndex] || IsNullRHI(),
                             "DeviceImage is not active: %s",
@@ -765,6 +767,7 @@ namespace AZ::RHI
 
                 case Action::ActivateBuffer:
                     {
+                        AZ_PROFILE_SCOPE(RHI, "FrameGraphCompiler: CompileTransientAttachments ActivateBuffer");
                         BufferFrameAttachment* bufferFrameAttachment = transientBufferGraphAttachments[attachmentIndex];
                         AZ_Assert(
                             transientBuffers[attachmentIndex] == nullptr,
@@ -786,6 +789,7 @@ namespace AZ::RHI
 
                 case Action::ActivateImage:
                     {
+                        AZ_PROFILE_SCOPE(RHI, "FrameGraphCompiler: CompileTransientAttachments ActivateImage");
                         ImageFrameAttachment* imageFrameAttachment = transientImageGraphAttachments[attachmentIndex];
                         AZ_Assert(
                             transientImages[attachmentIndex] == nullptr,

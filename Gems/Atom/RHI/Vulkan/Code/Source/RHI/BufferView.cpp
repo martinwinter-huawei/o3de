@@ -108,6 +108,8 @@ namespace AZ
                 auto& device = static_cast<Device&>(GetDevice());
                 device.QueueForRelease(new ReleaseContainer<VkBufferView>(
                     device.GetNativeDevice(), m_nativeBufferView, device.GetContext().DestroyBufferView));
+                if (GetDevice().GetDeviceIndex() == 0)
+                    AZ_Printf("BufferView", "%s", GetName().GetCStr());
                 m_nativeBufferView = VK_NULL_HANDLE;
             }
         }

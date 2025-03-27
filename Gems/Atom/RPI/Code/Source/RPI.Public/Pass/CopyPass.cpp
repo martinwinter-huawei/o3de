@@ -454,6 +454,8 @@ namespace AZ
             }
             EndScopeQuery(context, CopyIndex::DeviceToHost);
 
+            // m_device1SignalFence[m_currentBufferIndex]->GetDeviceFence(context.GetDeviceIndex())->SetExternallySignalled();
+
             // Once signaled on device 1, we can map the host staging buffers on device 1 and 2 and copy data from 1 -> 2 and then signal the upload on device 2
             m_device1SignalFence[m_currentBufferIndex]
                 ->GetDeviceFence(context.GetDeviceIndex())
@@ -825,6 +827,18 @@ namespace AZ
             // as discusssed here (https://github.com/o3de/o3de/pull/18268)
             // we will return the first Timestamp for now
             return m_queryEntries[AZStd::to_underlying(CopyIndex::SameDevice)].m_timestampResult;
+        }
+
+        TimestampResult CopyPass::GetTimestampResultsInternal(int deviceIndex) const
+        {
+            return m_queryEntries[AZStd::to_underlying(
+                                      (deviceIndex == m_data.m_destinationDeviceIndex) ? CopyIndex::HostToDevice : CopyIndex::DeviceToHost)]
+                .m_timestampResult;
+        }
+
+        AZStd::pair<int, int> CopyPass::GetDeviceIndices() const
+        {
+            return { m_data.m_sourceDeviceIndex, m_data.m_destinationDeviceIndex };
         }
 
         PipelineStatisticsResult CopyPass::GetPipelineStatisticsResultInternal() const

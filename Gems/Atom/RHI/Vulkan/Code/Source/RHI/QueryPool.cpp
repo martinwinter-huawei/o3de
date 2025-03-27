@@ -88,6 +88,8 @@ namespace AZ
                 auto& device = static_cast<Device&>(GetDevice());
                 device.QueueForRelease(
                     new ReleaseContainer<VkQueryPool>(device.GetNativeDevice(), m_nativeQueryPool, device.GetContext().DestroyQueryPool));
+                if (GetDevice().GetDeviceIndex() == 0)
+                    AZ_Printf("QueryPool", "%s", GetName().GetCStr());
                 m_nativeQueryPool = VK_NULL_HANDLE;
             }
         }
