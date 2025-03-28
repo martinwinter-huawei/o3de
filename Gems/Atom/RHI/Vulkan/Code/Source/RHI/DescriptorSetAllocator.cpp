@@ -187,7 +187,9 @@ namespace AZ
 
         void DescriptorSetAllocator::Collect()
         {
+            AZ_Printf("DescriptorSetAllocator::Collect", "%s SubAllocator", GetName().GetCStr());
             m_subAllocator.Collect();
+            AZ_Printf("DescriptorSetAllocator::Collect", "%s PoolAllocator", GetName().GetCStr());
             m_poolAllocator.Collect();
         }
 

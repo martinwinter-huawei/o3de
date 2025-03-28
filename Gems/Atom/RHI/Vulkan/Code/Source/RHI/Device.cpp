@@ -828,8 +828,11 @@ namespace AZ
             }
 
             m_commandQueueContext.End();
+            AZ_Printf("Collect()", "CommandListAllocator");
             m_commandListAllocator.Collect();
+            AZ_Printf("Collect()", "SemaphoreAllocator");
             m_semaphoreAllocator.Collect();
+            AZ_Printf("Collect()", "SwapChainSemaphoreAllocator");
             m_swapChainSemaphoreAllocator.Collect();
             m_bindlessDescriptorPool.GarbageCollect();
         }

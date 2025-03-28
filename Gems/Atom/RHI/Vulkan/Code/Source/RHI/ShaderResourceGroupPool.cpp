@@ -207,6 +207,7 @@ namespace AZ
         void ShaderResourceGroupPool::OnFrameEnd()
         {
             m_currentIteration++;
+            AZ_Printf("ShaderResourceGroupPool", "%s", GetName().GetCStr());
             m_descriptorSetAllocator->Collect();
             Base::OnFrameEnd();
         }

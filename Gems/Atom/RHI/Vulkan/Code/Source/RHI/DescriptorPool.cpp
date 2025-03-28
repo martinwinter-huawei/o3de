@@ -108,6 +108,7 @@ namespace AZ
 
         void DescriptorPool::Collect()
         {
+            AZ_Printf("DescriptorPool::Collect", "%s", GetName().GetCStr());
             m_collector.Collect();
         }
 

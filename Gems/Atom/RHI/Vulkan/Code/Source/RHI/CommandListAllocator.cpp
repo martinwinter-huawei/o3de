@@ -124,7 +124,7 @@ namespace AZ
                 {
                     commandListSubAllocator.Reset();
                 });
-
+                AZ_Printf("CommandListAllocator::Collect", "%s Queue %d", GetName().GetCStr(), queueIdx);
                 m_commandPoolAllocators[queueIdx].Collect();
             }
         }
