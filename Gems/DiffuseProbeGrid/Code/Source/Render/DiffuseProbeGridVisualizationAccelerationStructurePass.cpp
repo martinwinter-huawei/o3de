@@ -43,7 +43,7 @@ namespace AZ
 
         bool DiffuseProbeGridVisualizationAccelerationStructurePass::IsEnabled() const
         {
-            if (!Pass::IsEnabled())
+            if (!Pass::IsEnabled() || !m_pipeline)
             {
                 return false;
             }

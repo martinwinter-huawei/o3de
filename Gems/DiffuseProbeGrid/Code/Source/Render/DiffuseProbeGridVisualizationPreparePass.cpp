@@ -74,7 +74,7 @@ namespace AZ
 
         bool DiffuseProbeGridVisualizationPreparePass::IsEnabled() const
         {
-            if (!RenderPass::IsEnabled())
+            if (!RenderPass::IsEnabled() || !m_pipeline)
             {
                 return false;
             }

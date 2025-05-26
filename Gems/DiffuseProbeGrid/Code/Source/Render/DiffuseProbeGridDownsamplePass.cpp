@@ -27,7 +27,7 @@ namespace AZ
 
         bool DiffuseProbeGridDownsamplePass::IsEnabled() const
         {
-            if (!Base::IsEnabled())
+            if (!Base::IsEnabled() || !m_pipeline)
             {
                 return false;
             }

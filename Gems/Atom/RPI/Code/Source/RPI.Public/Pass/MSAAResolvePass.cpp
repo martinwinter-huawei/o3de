@@ -77,7 +77,7 @@ namespace AZ
         bool MSAAResolvePass::IsEnabled() const
         {
             // check Pass base class first to see if the Pass is explicitly disabled
-            if (!Pass::IsEnabled())
+            if (!Pass::IsEnabled() || !m_pipeline)
             {
                 return false;
             }

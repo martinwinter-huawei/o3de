@@ -100,7 +100,7 @@ namespace AZ
 
         bool DiffuseProbeGridVisualizationRayTracingPass::IsEnabled() const
         {
-            if (!RenderPass::IsEnabled())
+            if (!RenderPass::IsEnabled() || !m_pipeline)
             {
                 return false;
             }

@@ -95,7 +95,7 @@ namespace AZ::RHI
                 {
                     RHI::HeapMemoryHintParameters heapAllocationParameters;
                     heapAllocationParameters.m_heapSizeScaleFactor = platformLimitsDescriptor->m_usageHintParameters.m_heapSizeScaleFactor;
-                    heapAllocationParameters.m_collectLatency = platformLimitsDescriptor->m_usageHintParameters.m_collectLatency;
+                    heapAllocationParameters.m_collectLatency = 2; // platformLimitsDescriptor->m_usageHintParameters.m_collectLatency;
                     heapAllocationParameters.m_maxHeapWastedPercentage = platformLimitsDescriptor->m_usageHintParameters.m_maxHeapWastedPercentage;
                     heapAllocationParameters.m_minHeapSizeInBytes = platformLimitsDescriptor->m_usageHintParameters.m_minHeapSizeInBytes;
                     frameSchedulerDescriptor.m_transientAttachmentPoolDescriptors[deviceIndex].m_heapParameters = RHI::HeapAllocationParameters(heapAllocationParameters);
@@ -137,6 +137,7 @@ namespace AZ::RHI
             for(auto i {0}; (i < deviceCount) && (i < static_cast<int>(AZStd::size(physicalDevices))); ++i)
             {
                 usePhysicalDevices.emplace_back(physicalDevices[i]);
+                // break;
             }
         }
         else
